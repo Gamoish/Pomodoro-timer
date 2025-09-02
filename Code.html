@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aesthetic Pomodoro Timer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-start: #d4e0e5;
+            --bg-end: #b6cddb;
+            --bg-card: rgba(255, 255, 255, 0.8);
+            --text-color-primary: #1e293b;
+            --text-color-secondary: #475569;
+            --button-bg: #4a5568;
+            --button-hover: #2d3748;
+            --visualizer-bg: rgba(0, 0, 0, 0.05);
+            --input-bg: #e2e8f0;
+            --icon-sun-color: #fbbf24;
+            --icon-moon-color: #93c5fd;
+            --toggle-bg: #6b7280;
+            --body-bg: linear-gradient(135deg, #d4e0e5 0%, #b6cddb 100%);
+            --button-text: white;
+            --input-border: #cbd5e1;
+        }
+
+        .dark-mode {
+            --bg-start: #0f172a;
+            --bg-end: #1e293b;
+            --bg-card: rgba(30, 41, 59, 0.8);
+            --text-color-primary: #f8fafc;
+            --text-color-secondary: #e2e8f0;
+            --button-bg: #6b7280;
+            --button-hover: #4b5563;
+            --visualizer-bg: rgba(255, 255, 255, 0.05);
+            --input-bg: #334155;
+            --icon-sun-color: #f8fafc;
+            --icon-moon-color: #f8fafc;
+            --toggle-bg: #3b82f6;
+            --body-bg: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --button-text: white;
+            --input-border: #475569;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--body-bg);
+            color: var(--text-color-secondary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            margin: 0;
+            transition: background 0.5s ease-in-out, color 0.5s ease-in-out;
+        }
+
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 2rem;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            backdrop-filter: blur(10px);
+            background-clip: padding-box;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            max-width: 90vw;
+            width: 500px;
+            padding: 2.5rem;
+            text-align: center;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .timer-display {
+            font-family: 'Inter', sans-serif;
+            font-size: 6rem;
+            font-weight: 700;
+            margin: 2rem 0;
+            color: var(--text-color-primary);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            transition: color 0.3s ease-in-out;
+        }
+
+        .control-button {
+            background: var(--button-bg);
+            color: var(--button-text);
+            padding: 0.75rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .control-button:hover {
+            background: var(--button-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .control-button:active {
+            transform: translateY(1px);
+        }
+
+        canvas {
+            display: block;
+            background-color: var(--visualizer-bg);
+            border-radius: 1rem;
+            margin-top: 2rem;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .dark-mode-btn {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .dark-mode-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .dark-mode-btn svg {
+            transition: all 0.3s ease-in-out;
+        }
+
+        .input-field {
+            background-color: var(--input-bg);
+            color: var(--text-color-primary);
+            border-color: var(--input-border);
+        }
+        .input-field::placeholder {
+            color: var(--placeholder-color);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .timer-display {
+                font-size: 4rem;
+            }
+            .card {
+                padding: 1.5rem;
+            }
+            .control-button {
+                padding: 0.75rem 1rem;
+                font-size: 0.875rem;
+            }
+            .dark-mode-btn {
+                top: 1rem;
+                right: 1rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <button id="dark-mode-btn" class="dark-mode-btn">
+        <svg id="sun-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-yellow-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <svg id="moon-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
+    <div class="card md:w-1/2 lg:w-1/3">
+        <h1 class="text-3xl font-bold mb-2 text-center text-color-primary">Pomodoro Timer</h1>
+        <div class="text-center text-gray-500 mb-4">
+            <span id="session-status" class="font-semibold text-lg text-green-600">Time to Focus!</span> | Sessions: <span id="sessions-counter">0</span>
+        </div>
+        <div id="timer-display" class="timer-display">
+            25:00
+        </div>
+
+        <div class="flex justify-center gap-4 flex-wrap">
+            <button id="start-btn" class="control-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd" />
+                </svg>
+                Start
+            </button>
+            <button id="pause-btn" class="control-button" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                </svg>
+                Pause
+            </button>
+            <button id="reset-btn" class="control-button">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M8.5 7.5A.5.5 0 008 8v4a.5.5 0 001 0V8a.5.5 0 00-.5-.5zM12.5 7.5A.5.5 0 0012 8v4a.5.5 0 001 0V8a.5.5 0 00-.5-.5z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM5 8a.5.5 0 000 1h10a.5.5 0 000-1H5z" clip-rule="evenodd" />
+                </svg>
+                Reset
+            </button>
+        </div>
+        
+        <div class="mt-8 flex flex-col sm:flex-row justify-center gap-4 text-left">
+            <div class="flex-1">
+                <label for="pomodoro-time" class="block text-sm font-medium text-gray-700">Pomodoro Time (min)</label>
+                <input type="number" id="pomodoro-time" value="25" min="1" max="60" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50 transition-colors duration-200 p-2 input-field">
+            </div>
+            <div class="flex-1">
+                <label for="break-time" class="block text-sm font-medium text-gray-700">Break Time (min)</label>
+                <input type="number" id="break-time" value="5" min="1" max="30" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring focus:ring-opacity-50 transition-colors duration-200 p-2 input-field">
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-bold mb-2">Music Waves</h2>
+            <input type="file" id="audio-file" accept="audio/*" class="w-full text-sm text-slate-500
+                file:mr-4 file:py-2 file:px-4
+                file:rounded-full file:border-0
+                file:text-sm file:font-semibold
+                file:bg-violet-50 file:text-violet-700
+                hover:file:bg-violet-100
+            "/>
+            <canvas id="visualizer" class="mt-4 w-full h-32"></canvas>
+        </div>
+        
+        <!-- Custom Message Box for Notifications -->
+        <div id="message-box" class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl transition-all duration-300 scale-0 opacity-0 z-50" role="alert">
+            <h3 id="message-title" class="text-2xl font-bold mb-2"></h3>
+            <p id="message-body" class="text-lg text-gray-600 dark:text-gray-300"></p>
+            <button id="close-message" class="mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-full">OK</button>
+        </div>
+    </div>
+
+    <audio id="audio-player" style="display: none;"></audio>
+
+    <script>
+        const timerDisplay = document.getElementById('timer-display');
+        const startBtn = document.getElementById('start-btn');
+        const pauseBtn = document.getElementById('pause-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const audioFile = document.getElementById('audio-file');
+        const audioPlayer = document.getElementById('audio-player');
+        const canvas = document.getElementById('visualizer');
+        const canvasCtx = canvas.getContext('2d');
+        const pomodoroTimeInput = document.getElementById('pomodoro-time');
+        const breakTimeInput = document.getElementById('break-time');
+        const sessionStatus = document.getElementById('session-status');
+        const sessionsCounter = document.getElementById('sessions-counter');
+        const messageBox = document.getElementById('message-box');
+        const messageTitle = document.getElementById('message-title');
+        const messageBody = document.getElementById('message-body');
+        const closeMessageBtn = document.getElementById('close-message');
+        const darkModeBtn = document.getElementById('dark-mode-btn');
+        const sunIcon = document.getElementById('sun-icon');
+        const moonIcon = document.getElementById('moon-icon');
+
+        // Initial timer values
+        let isPaused = true;
+        let isPomodoro = true;
+        let pomodoroMinutes = 25;
+        let breakMinutes = 5;
+        let seconds = 0;
+        let intervalId = null;
+        let sessions = 0;
+
+        // Visualizer variables
+        let audioContext = null;
+        let source = null;
+        let analyser = null;
+        let dataArray = null;
+
+        // Function to update the timer display
+        function updateTimer() {
+            let currentMinutes = isPomodoro ? pomodoroMinutes : breakMinutes;
+            let currentSeconds = seconds;
+            
+            let minutes = parseInt(currentMinutes, 10);
+            let sec = parseInt(currentSeconds, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            sec = sec < 10 ? "0" + sec : sec;
+
+            timerDisplay.textContent = `${minutes}:${sec}`;
+        }
+
+        // Timer logic
+        function startTimer() {
+            if (!isPaused) return;
+            isPaused = false;
+            startBtn.style.display = 'none';
+            pauseBtn.style.display = 'inline-flex';
+            
+            intervalId = setInterval(() => {
+                if (seconds === 0) {
+                    if ((isPomodoro && pomodoroMinutes === 0) || (!isPomodoro && breakMinutes === 0)) {
+                        clearInterval(intervalId);
+                        
+                        if (isPomodoro) {
+                            sessions++;
+                            sessionsCounter.textContent = sessions;
+                            isPomodoro = false;
+                            showCustomMessage("Pomodoro Finished!", "Time for a well-deserved break!");
+                            resetSessionTime();
+                            startTimer();
+                        } else {
+                            isPomodoro = true;
+                            showCustomMessage("Break's Over!", "Ready for the next session?");
+                            resetSessionTime();
+                            startTimer();
+                        }
+                        return;
+                    }
+                    if (isPomodoro) {
+                      pomodoroMinutes--;
+                    } else {
+                      breakMinutes--;
+                    }
+                    seconds = 59;
+                } else {
+                    seconds--;
+                }
+                updateTimer();
+            }, 1000);
+            audioPlayer.play();
+        }
+
+        function pauseTimer() {
+            if (isPaused) return;
+            isPaused = true;
+            clearInterval(intervalId);
+            startBtn.style.display = 'inline-flex';
+            pauseBtn.style.display = 'none';
+            audioPlayer.pause();
+        }
+
+        function resetTimer() {
+            clearInterval(intervalId);
+            isPaused = true;
+            isPomodoro = true;
+            pomodoroMinutes = parseInt(pomodoroTimeInput.value, 10);
+            breakMinutes = parseInt(breakTimeInput.value, 10);
+            seconds = 0;
+            sessions = 0;
+            sessionsCounter.textContent = sessions;
+            resetSessionTime();
+            startBtn.style.display = 'inline-flex';
+            pauseBtn.style.display = 'none';
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.currentTime = 0;
+            }
+        }
+        
+        function resetSessionTime() {
+            if (isPomodoro) {
+                pomodoroMinutes = parseInt(pomodoroTimeInput.value, 10);
+                sessionStatus.textContent = "Time to Focus!";
+                sessionStatus.classList.remove('text-blue-600');
+                sessionStatus.classList.add('text-green-600');
+            } else {
+                breakMinutes = parseInt(breakTimeInput.value, 10);
+                sessionStatus.textContent = "Take a Break!";
+                sessionStatus.classList.remove('text-green-600');
+                sessionStatus.classList.add('text-blue-600');
+            }
+            seconds = 0;
+            updateTimer();
+        }
+        
+        // Custom message box logic
+        function showCustomMessage(title, body) {
+            messageTitle.textContent = title;
+            messageBody.textContent = body;
+            messageBox.style.transform = 'translate(-50%, -50%) scale(1)';
+            messageBox.style.opacity = '1';
+        }
+
+        function closeCustomMessage() {
+            messageBox.style.transform = 'translate(-50%, -50%) scale(0)';
+            messageBox.style.opacity = '0';
+        }
+
+        // Music visualizer logic
+        function setupAudioVisualizer() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioContext.createAnalyser();
+                analyser.fftSize = 256;
+                dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+                source = audioContext.createMediaElementSource(audioPlayer);
+                source.connect(analyser);
+                analyser.connect(audioContext.destination);
+            }
+            drawVisualizer();
+        }
+
+        function drawVisualizer() {
+            requestAnimationFrame(drawVisualizer);
+            
+            if (analyser) {
+                analyser.getByteFrequencyData(dataArray);
+            }
+
+            canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
+            canvasCtx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+            canvasCtx.shadowBlur = 10;
+            canvasCtx.shadowColor = 'rgba(0, 0, 0, 0.2)';
+            
+            const barWidth = (canvas.width / dataArray.length) * 2.5;
+            let barHeight;
+            let x = 0;
+
+            for(let i = 0; i < dataArray.length; i++) {
+                barHeight = dataArray[i];
+
+                canvasCtx.fillStyle = `rgb(${barHeight + 100}, 50, 150)`;
+                canvasCtx.fillRect(x, canvas.height - barHeight / 2, barWidth, barHeight / 2);
+                x += barWidth + 1;
+            }
+        }
+
+        // Dark mode logic
+        darkModeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                sunIcon.style.display = 'none';
+                moonIcon.style.display = 'block';
+            } else {
+                sunIcon.style.display = 'block';
+                moonIcon.style.display = 'none';
+            }
+        });
+
+        // Event listeners
+        startBtn.addEventListener('click', startTimer);
+        pauseBtn.addEventListener('click', pauseTimer);
+        resetBtn.addEventListener('click', resetTimer);
+        closeMessageBtn.addEventListener('click', closeCustomMessage);
+
+        audioFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                audioPlayer.src = url;
+                if (audioPlayer.paused) {
+                  audioPlayer.play();
+                }
+                setupAudioVisualizer();
+            }
+        });
+        
+        pomodoroTimeInput.addEventListener('input', () => {
+            pomodoroMinutes = parseInt(pomodoroTimeInput.value, 10);
+            if(isPaused && isPomodoro) updateTimer();
+        });
+
+        breakTimeInput.addEventListener('input', () => {
+            breakMinutes = parseInt(breakTimeInput.value, 10);
+            if(isPaused && !isPomodoro) updateTimer();
+        });
+        
+        // Initial setup on page load
+        window.onload = function() {
+            updateTimer();
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+        };
+    </script>
+</body>
+</html>
