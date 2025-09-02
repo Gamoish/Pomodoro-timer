@@ -1,20 +1,15 @@
 # ⏳ Aesthetic Pomodoro Timer  
 
-A beautifully designed **Pomodoro Timer** built with **HTML, TailwindCSS, and JavaScript**.  
-This app helps you boost productivity by following the **Pomodoro Technique** (25 minutes of focus + 5 minutes break).  
-
-It comes with:  
-✅ Dark/Light mode toggle  
-✅ Customizable focus & break times  
-✅ Session tracking  
-✅ Music playback with a real-time **audio visualizer**  
-✅ Aesthetic glassmorphism UI  
+Because being productive shouldn’t feel like staring at a spreadsheet from 2007.  
 
 ---
 
-## 📸 Preview  
+## 🎨 Features
+- 🖼️ **Aesthetic backgrounds** (so you can pretend you’re in a cozy café instead of your messy room).  
+- 🎵 **Soothing vibes** — perfect for studying, coding, or contemplating your life choices.  
+- ⏱️ **Adjustable timer** (work smarter, not harder… or at least look cooler while procrastinating).  
+- 📱 **Responsive design** — works on your phone, laptop, fridge (if it has Chrome). 
 
-*(Add screenshots or GIFs of your app here)*  
 
 ---
 
